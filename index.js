@@ -96,10 +96,21 @@ io.on('connection', (socket) => {
     socket.on('newPosition', (data) => {
       console.log("newPosition");
       //console.log(data)
-      //const dataObject = JSON.parse(data);
+      
       //console.log(dataObject)
 
+      // TODO check timestamp and if more than 5 secs reject
       players[socket.id]["position"] = data;
+
+      var dataFixed = data.replace(/"{/g, "{");
+      dataFixed = dataFixed.replace(/}"/g, "}");
+      const dataObject = JSON.parse(dataFixed);
+
+      var startTime = parseInt(dataObject.time);
+      var endTime = Date.now();
+      var ping = (endTime - startTime);
+
+      console.log(ping.toString() + " ms");
     });
 
     socket.on('testEmit', () => {
@@ -108,7 +119,8 @@ io.on('connection', (socket) => {
 });
 
 setInterval(() => {
-  io.emit('yourPosition', null);
+  var time = Date.now()
+  io.emit('yourPosition', time.toString());
 }, 5000);
   
 
