@@ -45,7 +45,7 @@ var io = require('socket.io')(server,{
 	  credentials: true
   }
 });
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3001;
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());       
@@ -111,6 +111,18 @@ io.on('connection', (socket) => {
       var ping = (endTime - startTime);
 
       console.log(ping.toString() + " ms");
+    });
+
+    socket.on('newDirection', (data) => {
+      console.log("newDirection");
+      // TODO check timestamp and if more than 5 secs reject
+      
+
+      var dataFixed = data.replace(/"{/g, "{");
+      dataFixed = dataFixed.replace(/}"/g, "}");
+      const dataObject = JSON.parse(dataFixed);
+
+      players[socket.id]["direction"] = JSON.stringify(dataObject.direction); 
     });
 
     socket.on('testEmit', () => {
