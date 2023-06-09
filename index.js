@@ -124,9 +124,19 @@ io.on('connection', (socket) => {
 
       players[socket.id]["direction"] = JSON.stringify(dataObject.direction); 
     });
+    
+    socket.on('newBullets', (data) => {
+      console.log("newBullets");
+      console.log(data);
 
-    socket.on('testEmit', () => {
-      console.log("testEmit");
+      // TODO check timestamp and if more than 5 secs reject
+      
+
+      var dataFixed = data.replace(/"{/g, "{");
+      dataFixed = dataFixed.replace(/}"/g, "}");
+      const dataObject = JSON.parse(dataFixed);
+
+      players[socket.id]["bullets"] = JSON.stringify(dataObject.bullets); 
     });
 });
 
