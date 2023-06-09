@@ -34,6 +34,12 @@ function fakePlayerDirTest(test) {
   }
 }
 
+function fakePlayerBulletTest(test) {
+  switch(test) {
+    default: return '{}';
+  }
+}
+
 function addConnections(n) {
   totalConnections += n;
 }
@@ -149,6 +155,7 @@ setInterval(() => {
 setInterval(() => {
   players["fakeplayer"]["position"] = fakePlayerPosTest(testCount % 3);
   players["fakeplayer"]["direction"] = fakePlayerDirTest(testCount % 3);
+  players["fakeplayer"]["bullets"] = fakePlayerBulletTest(0);
 
   var json = JSON.stringify(players);
   io.emit('updatePositions', json);
