@@ -8,29 +8,39 @@ var players = {};
 
 var fakeplayer = {
   "id": "fakeplayer",
-  "position": '{"x":"2.0","y":"2.0","z":"3.0","playerId":"fakeplayer"}',
-  "direction": '{"x":"2.0","y":"2.0","z":"3.0","yaw": "0.0","pitch":"0.0"}'
+  "position": {"x":"2.0","y":"2.0","z":"3.0","playerId":"fakeplayer"},
+  "direction": {"x":"2.0","y":"2.0","z":"3.0","yaw": "0.0","pitch":"0.0"}
 }
 players["fakeplayer"] = fakeplayer;
 var testCount = 0;
 
 function fakePlayerPosTest(test) {
   switch(test) {
-    case 0: return '{"x":"2.0","y":"2.0","z":"2.0","playerId":"fakeplayer"}';
-    case 1: return '{"x":"3.0","y":"2.0","z":"3.0","playerId":"fakeplayer"}';
-    case 2: return '{"x":"4.0","y":"2.0","z":"4.0","playerId":"fakeplayer"}';
-    case 3: return '{"x":"5.0","y":"2.0","z":"5.0","playerId":"fakeplayer"}';
-    default: return '{"x":"2.0","y":"2.0","z":"2.0","playerId":"fakeplayer"}';
+    case 0: return {"x":"2.0","y":"2.0","z":"2.0","playerId":"fakeplayer"};
+    case 1: return {"x":"3.0","y":"2.0","z":"3.0","playerId":"fakeplayer"};
+    case 2: return {"x":"4.0","y":"2.0","z":"4.0","playerId":"fakeplayer"};
+    case 3: return {"x":"5.0","y":"2.0","z":"5.0","playerId":"fakeplayer"};
+    default: return {"x":"2.0","y":"2.0","z":"2.0","playerId":"fakeplayer"};
   }
 }
 
 function fakePlayerDirTest(test) {
   switch(test) {
-    case 0: return '{"x":"1.0","y":"0.0","z":"0.0","yaw": "0.0","pitch":"0.0"}';
-    case 1: return '{"x":"1.0","y":"0.0","z":"0.0","yaw": "90.0","pitch":"0.0"}';
-    case 2: return '{"x":"1.0","y":"0.0","z":"0.0","yaw": "180.0","pitch":"0.0"}';
-    case 3: return '{"x":"1.0","y":"0.0","z":"0.0","yaw": "270.0","pitch":"0.0"}';
-    default: return '{"x":"1.0","y":"0.0","z":"0.0","yaw": "0.0","pitch":"0.0"}';
+    case 0: return {"x":"1.0","y":"0.0","z":"0.0","yaw": "0.0","pitch":"0.0"};
+    case 1: return {"x":"1.0","y":"0.0","z":"0.0","yaw": "90.0","pitch":"0.0"};
+    case 2: return {"x":"1.0","y":"0.0","z":"0.0","yaw": "180.0","pitch":"0.0"};
+    case 3: return {"x":"1.0","y":"0.0","z":"0.0","yaw": "270.0","pitch":"0.0"};
+    default: return {"x":"1.0","y":"0.0","z":"0.0","yaw": "0.0","pitch":"0.0"};
+  }
+}
+
+function fakePlayerBulletTest(test) {
+  switch(test) {
+    case 0: return {"2":{"x":"2.0","y":"3.0","z":"2.0"}};
+    case 1: return {"2":{"x":"2.0","y":"3.0","z":"3.0"}};
+    case 2: return {"2":{"x":"2.0","y":"3.0","z":"4.0"}};
+    case 3: return {"2":{"x":"2.0","y":"3.0","z":"3.0"}};
+    default: return {"2":{"x":"2.0","y":"3.0","z":"2.0"}};
   }
 }
 
@@ -91,6 +101,7 @@ io.on('connection', (socket) => {
         addConnections(-1);
         console.log("Disconnection " + totalConnections);
         io.emit('totalConnections', totalConnections);
+        io.emit('playerDisconnected', socket.id);
     });
 
     socket.on('newPosition', (data) => {
@@ -100,33 +111,20 @@ io.on('connection', (socket) => {
       //console.log(dataObject)
 
       // TODO check timestamp and if more than 5 secs reject
-      players[socket.id]["position"] = data;
-
-      var dataFixed = data.replace(/"{/g, "{");
-      dataFixed = dataFixed.replace(/}"/g, "}");
-      const dataObject = JSON.parse(dataFixed);
-
-      var startTime = parseInt(dataObject.time);
-      var endTime = Date.now();
-      var ping = (endTime - startTime);
-
-      console.log(ping.toString() + " ms");
-    });
-
-    socket.on('newDirection', (data) => {
-      console.log("newDirection");
-      // TODO check timestamp and if more than 5 secs reject
       
 
       var dataFixed = data.replace(/"{/g, "{");
       dataFixed = dataFixed.replace(/}"/g, "}");
       const dataObject = JSON.parse(dataFixed);
+      players[socket.id]["position"] = dataObject.position;
+      players[socket.id]["direction"] = dataObject.direction; 
+      players[socket.id]["bullets"] = dataObject.bullets; 
 
-      players[socket.id]["direction"] = JSON.stringify(dataObject.direction); 
-    });
+      var startTime = parseInt(dataObject.position.time);
+      var endTime = Date.now();
+      var ping = (endTime - startTime);
 
-    socket.on('testEmit', () => {
-      console.log("testEmit");
+      console.log(ping.toString() + " ms");
     });
 });
 
@@ -139,6 +137,7 @@ setInterval(() => {
 setInterval(() => {
   players["fakeplayer"]["position"] = fakePlayerPosTest(testCount % 3);
   players["fakeplayer"]["direction"] = fakePlayerDirTest(testCount % 3);
+  players["fakeplayer"]["bullets"] = fakePlayerBulletTest(testCount % 3);
 
   var json = JSON.stringify(players);
   io.emit('updatePositions', json);
