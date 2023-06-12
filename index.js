@@ -101,6 +101,7 @@ io.on('connection', (socket) => {
         addConnections(-1);
         console.log("Disconnection " + totalConnections);
         io.emit('totalConnections', totalConnections);
+        io.emit('playerDisconnected', socket.id);
     });
 
     socket.on('newPosition', (data) => {
