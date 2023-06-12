@@ -110,11 +110,12 @@ io.on('connection', (socket) => {
       //console.log(dataObject)
 
       // TODO check timestamp and if more than 5 secs reject
-      players[socket.id]["position"] = data;
+      
 
       var dataFixed = data.replace(/"{/g, "{");
       dataFixed = dataFixed.replace(/}"/g, "}");
       const dataObject = JSON.parse(dataFixed);
+      players[socket.id]["position"] = dataObject;
 
       var startTime = parseInt(dataObject.time);
       var endTime = Date.now();
@@ -132,7 +133,7 @@ io.on('connection', (socket) => {
       dataFixed = dataFixed.replace(/}"/g, "}");
       const dataObject = JSON.parse(dataFixed);
 
-      players[socket.id]["direction"] = JSON.stringify(dataObject.direction); 
+      players[socket.id]["direction"] = dataObject; 
     });
     
     socket.on('newBullets', (data) => {
@@ -140,13 +141,11 @@ io.on('connection', (socket) => {
       console.log(data);
 
       // TODO check timestamp and if more than 5 secs reject
-      
-
       var dataFixed = data.replace(/"{/g, "{");
       dataFixed = dataFixed.replace(/}"/g, "}");
       const dataObject = JSON.parse(dataFixed);
 
-      players[socket.id]["bullets"] = JSON.stringify(dataObject.bullets); 
+      players[socket.id]["bullets"] = dataObject; 
     });
 });
 
