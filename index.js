@@ -115,37 +115,15 @@ io.on('connection', (socket) => {
       var dataFixed = data.replace(/"{/g, "{");
       dataFixed = dataFixed.replace(/}"/g, "}");
       const dataObject = JSON.parse(dataFixed);
-      players[socket.id]["position"] = dataObject;
+      players[socket.id]["position"] = dataObject.position;
+      players[socket.id]["direction"] = dataObject.direction; 
+      players[socket.id]["bullets"] = dataObject.bullets; 
 
-      var startTime = parseInt(dataObject.time);
+      var startTime = parseInt(dataObject.position.time);
       var endTime = Date.now();
       var ping = (endTime - startTime);
 
       console.log(ping.toString() + " ms");
-    });
-
-    socket.on('newDirection', (data) => {
-      console.log("newDirection");
-      // TODO check timestamp and if more than 5 secs reject
-      
-
-      var dataFixed = data.replace(/"{/g, "{");
-      dataFixed = dataFixed.replace(/}"/g, "}");
-      const dataObject = JSON.parse(dataFixed);
-
-      players[socket.id]["direction"] = dataObject; 
-    });
-    
-    socket.on('newBullets', (data) => {
-      console.log("newBullets");
-      console.log(data);
-
-      // TODO check timestamp and if more than 5 secs reject
-      var dataFixed = data.replace(/"{/g, "{");
-      dataFixed = dataFixed.replace(/}"/g, "}");
-      const dataObject = JSON.parse(dataFixed);
-
-      players[socket.id]["bullets"] = dataObject; 
     });
 });
 
